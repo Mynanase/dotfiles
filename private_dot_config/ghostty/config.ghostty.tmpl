@@ -1,0 +1,26 @@
+# Migrated from ~/.config/wezterm/wezterm.lua
+
+# Appearance
+# WezTerm: BlulocoDark
+# Ghostty theme name has a space: "Bluloco Dark"
+theme = Bluloco Dark
+font-size = 14
+font-family = Liga SFMono Nerd Font
+font-family = LXGW Neo XiHei
+adjust-cell-height = 20%
+background-opacity = 0.85
+# background-blur-radius = 10
+{{ if eq .chezmoi.os "darwin" -}}
+macos-titlebar-style = hidden
+{{ end -}}
+window-padding-x = 8
+window-padding-y = 8
+
+# Shell
+command = /bin/zsh
+
+# Key behavior migrated from WezTerm
+# WezTerm mapped SUPER to ALT, so we use ALT here.
+keybind = alt+arrow_left=text:\x1bOH
+keybind = alt+arrow_right=text:\x1bOF
+keybind = alt+backspace=text:\x15
