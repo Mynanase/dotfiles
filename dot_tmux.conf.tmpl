@@ -24,7 +24,7 @@ set -g allow-passthrough on
 set -g set-clipboard on
 set -g detach-on-destroy off
 set -g exit-empty on
-set -g default-shell /bin/zsh
+set -g default-shell {{ if eq .chezmoi.os "darwin" }}/opt/homebrew/bin/fish{{ else }}/usr/bin/fish{{ end }}
 set -g xterm-keys on
 set -g extended-keys on
 set -g set-titles on

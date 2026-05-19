@@ -17,7 +17,7 @@ window-padding-x = 8
 window-padding-y = 8
 
 # Shell
-command = /bin/zsh
+command = {{ if eq .chezmoi.os "darwin" }}/opt/homebrew/bin/fish{{ else }}/usr/bin/fish{{ end }}
 
 # Key behavior migrated from WezTerm
 # WezTerm mapped SUPER to ALT, so we use ALT here.
