@@ -1,0 +1,120 @@
+# ─── fish config ────────────────────────────────────────────────────
+# Managed by chezmoi
+# Shell: fish | Prompt: Starship | History: Atuin
+# Works on macOS / Debian / Arch / WSL
+# ─────────────────────────────────────────────────────────────────────
+
+# ─── Homebrew (macOS only, harmless on Linux) ────────────────────────
+if test -d /opt/homebrew
+    set -gx HOMEBREW_PREFIX /opt/homebrew
+    set -gx HOMEBREW_CELLAR /opt/homebrew/Cellar
+    set -gx HOMEBREW_REPOSITORY /opt/homebrew
+    set -gx HOMEBREW_NO_ENV_HINTS 1
+    fish_add_path -gP /opt/homebrew/bin /opt/homebrew/sbin
+    set -q MANPATH; or set MANPATH ''; set -gx MANPATH "/opt/homebrew/share/man" $MANPATH
+    set -q INFOPATH; or set INFOPATH ''; set -gx INFOPATH "/opt/homebrew/share/info" $INFOPATH
+end
+
+# ─── Cargo/Rust ──────────────────────────────────────────────────────
+if test -f ~/.cargo/env.fish
+    source ~/.cargo/env.fish
+end
+
+# ─── PATH additions (cross-platform) ─────────────────────────────────
+fish_add_path -gP ~/.local/bin          # Hermes Agent
+fish_add_path -gP ~/.bun/bin            # Bun
+fish_add_path -gP ~/.codeium/windsurf/bin 2>/dev/null  # Windsurf (macOS)
+fish_add_path -gP ~/Library/pnpm 2>/dev/null          # pnpm (macOS)
+fish_add_path -gP /Library/TeX/texbin 2>/dev/null     # LaTeX (macOS)
+fish_add_path -gP /Applications/Obsidian.app/Contents/MacOS 2>/dev/null
+
+# ─── Interactive shell only ──────────────────────────────────────────
+if status is-interactive
+
+    # Disable default greeting
+    set -g fish_greeting ""
+
+    # SSH agent (Bitwarden) — macOS only, skips silently on Linux
+    if test -S "$HOME/Library/Containers/com.bitwarden.desktop/Data/.bitwarden-ssh-agent.sock"
+        set -gx SSH_AUTH_SOCK "$HOME/Library/Containers/com.bitwarden.desktop/Data/.bitwarden-ssh-agent.sock"
+    end
+
+    # ─── Prompt ──────────────────────────────────────────────────────
+    if type -q starship
+        starship init fish | source
+    end
+
+    # ─── History ─────────────────────────────────────────────────────
+    if type -q atuin
+        atuin init fish | source
+        # Fix atuin up-arrow binding
+        function __fix_atuin_binding --on-event fish_prompt
+            if not set -q __atuin_fixed
+                bind --erase --preset up 2>/dev/null
+                bind --erase --preset -k up 2>/dev/null
+                set -g __atuin_fixed 1
+            end
+        end
+    end
+
+    # ─── fzf ─────────────────────────────────────────────────────────
+    if type -q fzf
+        fzf --fish | source
+    end
+
+    # ─── zoxide (smart cd) ───────────────────────────────────────────
+    if type -q zoxide
+        zoxide init fish | source
+    end
+
+    # ─── fnm (Node version manager) ──────────────────────────────────
+    if type -q fnm
+        fnm env --use-on-cd | source
+    end
+
+    # ─── SSH key switcher ────────────────────────────────────────────
+    function set-ssh-key --description "Switch active SSH key"
+        set -l key "$HOME/.ssh/$argv[1]"
+        if not test -f "$key"
+            echo "Key not found: $key" >&2
+            echo "Available keys:" >&2
+            ls ~/.ssh/*.pub 2>/dev/null | sed 's/.*\///; s/\.pub$//' >&2
+            return 1
+        end
+        ssh-add -D 2>/dev/null
+        ssh-add "$key"
+        echo "Active SSH key: $argv[1]"
+    end
+
+    # ─── Aliases ─────────────────────────────────────────────────────
+    alias ls   'eza --icons --group-directories-first'
+    alias la   'eza -a --icons --group-directories-first'
+    alias ll   'eza -la --icons --group-directories-first'
+    alias lla  'eza -la'
+    alias lt   'eza --tree --icons --level=2'
+    alias eza  'eza --icons auto --git'
+    alias ff   'fastfetch'
+    alias k    'kubectl'
+
+    # override commands
+    alias cat   bat
+    alias find  fd
+    alias grep  rg
+    alias top   btop
+    alias lg    lazygit
+
+    # brew
+    alias bs 'brew search'
+    alias bi 'brew install'
+    alias bc 'brew install --cask'
+    alias br 'brew remove'
+end
+
+# ─── conda ────────────────────────────────────────────────────────────
+if test -f /opt/homebrew/Caskroom/miniforge/base/bin/conda
+    eval /opt/homebrew/Caskroom/miniforge/base/bin/conda "shell.fish" "hook" $argv | source
+else if test -f "/opt/homebrew/Caskroom/miniforge/base/etc/fish/conf.d/conda.fish"
+    source /opt/homebrew/Caskroom/miniforge/base/etc/fish/conf.d/conda.fish
+else if test -d "/opt/homebrew/Caskroom/miniforge/base/bin"
+    fish_add_path -gP /opt/homebrew/Caskroom/miniforge/base/bin
+end
