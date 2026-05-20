@@ -1,0 +1,11 @@
+{{ if eq .chezmoi.hostname "noah" -}}
+[data]
+role = "workstation"
+hasGUI = true
+hasGPU = false
+{{ else -}}
+[data]
+role = "server"
+hasGUI = false
+hasGPU = false
+{{ end -}}

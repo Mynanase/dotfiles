@@ -23,10 +23,12 @@ end
 # ─── PATH additions (cross-platform) ─────────────────────────────────
 fish_add_path -gP ~/.local/bin          # Hermes Agent
 fish_add_path -gP ~/.bun/bin            # Bun
-fish_add_path -gP ~/.codeium/windsurf/bin 2>/dev/null  # Windsurf (macOS)
-fish_add_path -gP ~/Library/pnpm 2>/dev/null          # pnpm (macOS)
-fish_add_path -gP /Library/TeX/texbin 2>/dev/null     # LaTeX (macOS)
+{{ if eq .data.role "workstation" -}}
+fish_add_path -gP ~/.codeium/windsurf/bin 2>/dev/null  # Windsurf
+fish_add_path -gP ~/Library/pnpm 2>/dev/null          # pnpm
+fish_add_path -gP /Library/TeX/texbin 2>/dev/null     # LaTeX
 fish_add_path -gP /Applications/Obsidian.app/Contents/MacOS 2>/dev/null
+{{ end -}}
 
 # ─── Interactive shell only ──────────────────────────────────────────
 if status is-interactive
@@ -93,7 +95,9 @@ if status is-interactive
     alias lla  'eza -la'
     alias lt   'eza --tree --icons --level=2'
     alias eza  'eza --icons auto --git'
+    {{ if eq .data.role "workstation" -}}
     alias ff   'fastfetch'
+    {{ end -}}
     alias k    'kubectl'
 
     # override commands
